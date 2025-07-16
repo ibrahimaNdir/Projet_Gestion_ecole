@@ -2,6 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MatiereController;
+use App\Http\Controllers\ClasseController;
+use App\Http\Controllers\AnneeAcademiqueController;
+use App\Http\Controllers\PeriodeEvaluationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,3 +21,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::apiResource('periodes-evaluation', PeriodeEvaluationController::class)->middleware('auth:sanctum');
+Route::apiResource('matieres', MatiereController::class)->middleware('auth:sanctum');
+Route::apiResource('classes', ClasseController::class)->middleware('auth:sanctum');
+Route::apiResource('annees-academiques', AnneeAcademiqueController::class)->middleware('auth:sanctum');
