@@ -5,6 +5,8 @@ use App\Http\Controllers\API\EleveController;
 use App\Http\Controllers\API\ParentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\AuthController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -23,8 +25,9 @@ use Illuminate\Support\Facades\Route;
 //Route::post('/register', [\App\Http\Controllers\AuthController::class, 'register']);
 //Route::post('/login', [\App\Http\Controllers\AuthController::class, 'login']);
 //Route::apiResource("/offres",\App\Http\Controllers\OffreController::class);
+Route::prefix('v1')->group(function () {
+    // ✅ TESTS CRUD sans authentification
 
-Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
     // ÉLÈVES
     Route::apiResource('eleves', EleveController::class);
 
@@ -38,3 +41,29 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
     Route::post('eleves/{eleve}/documents', [DocumentController::class, 'store']);
     Route::delete('documents/{document}', [DocumentController::class, 'destroy']);
 });
+
+//
+//Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
+//    // ÉLÈVES
+//    Route::apiResource('eleves', EleveController::class);
+//
+//    // PARENTS
+//    Route::apiResource('parents', ParentController::class);
+//
+//    // Lier un élève à un parent
+//    Route::post('parents/{parent}/attach-eleve/{eleve}', [ParentController::class, 'attachEleve']);
+//
+//    // DOCUMENTS
+//    Route::post('eleves/{eleve}/documents', [DocumentController::class, 'store']);
+//    Route::delete('documents/{document}', [DocumentController::class, 'destroy']);
+//});
+//Route::prefix('v1')->group(function () {
+//    Route::post('register', [AuthController::class, 'register']);
+//    Route::post('login', [AuthController::class, 'login']);
+//
+//    Route::middleware('auth:sanctum')->group(function () {
+//        Route::post('logout', [AuthController::class, 'logout']);
+//
+//        // les autres routes protégées (eleves, parents, etc.)
+//    });
+//});

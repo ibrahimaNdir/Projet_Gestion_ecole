@@ -14,11 +14,11 @@ class EleveController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
+
         {
             return Eleve::with('user')->paginate(10);
         }
-    }
+
 
     /**
      * Store a newly created resource in storage.
