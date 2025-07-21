@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('parent_utilisateur_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('eleve_id')->constrained('eleves')->onDelete('cascade');
-            $table->string('type_relation')->nullable(); // Ex: père, mère, tuteur
+            $table->string('type_relation')->nullable(); // comme pere, mere, tuteur
             $table->unique(['parent_utilisateur_id', 'eleve_id']);
             $table->timestamps();
         });

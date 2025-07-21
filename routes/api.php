@@ -26,7 +26,7 @@ use App\Http\Controllers\API\AuthController;
 //Route::post('/login', [\App\Http\Controllers\AuthController::class, 'login']);
 //Route::apiResource("/offres",\App\Http\Controllers\OffreController::class);
 Route::prefix('v1')->group(function () {
-    // ✅ TESTS CRUD sans authentification
+    //  TESTS CRUD sans authentification
 
     // ÉLÈVES
     Route::apiResource('eleves', EleveController::class);
@@ -34,7 +34,7 @@ Route::prefix('v1')->group(function () {
     // PARENTS
     Route::apiResource('parents', ParentController::class);
 
-    // Lier un élève à un parent
+    // Lier un élève a un parent
     Route::post('parents/{parent}/attach-eleve/{eleve}', [ParentController::class, 'attachEleve']);
 
     // DOCUMENTS
