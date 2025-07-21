@@ -7,14 +7,14 @@ class ClasseService
 {
     public function index()
     {
-        $matieres = Classe::all();
-        return $matieres;
+        $classes= Classe::all();
+        return $classes;
     }
 
     public function store( array $request)
     {
-        $matiere =  Classe::create($request);
-        return $matiere;
+        $classe =  Classe::create($request);
+        return $classe;
     }
 
     public function destroy($id)

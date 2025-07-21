@@ -7,14 +7,14 @@ class AnneeAcademiqueService
 {
     public function index()
     {
-        $matieres = AnneeAcademique::all();
-        return $matieres;
+        $annees = AnneeAcademique::all();
+        return $annees;
     }
 
     public function store( array $request)
     {
-        $matiere =  AnneeAcademique::create($request);
-        return $matiere;
+        $annee=  AnneeAcademique::create($request);
+        return $annee;
     }
 
     public function destroy($id)

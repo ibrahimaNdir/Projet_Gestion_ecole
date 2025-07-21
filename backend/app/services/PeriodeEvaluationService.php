@@ -7,14 +7,14 @@ class PeriodeEvaluationService
 {
     public function index()
     {
-        $matieres = PeriodeEvaluation::all();
-        return $matieres;
+        $periodes = PeriodeEvaluation::all();
+        return $periodes;
     }
 
     public function store( array $request)
     {
-        $matiere =  PeriodeEvaluation::create($request);
-        return $matiere;
+        $periode=  PeriodeEvaluation::create($request);
+        return $periode;
     }
 
     public function destroy($id)
