@@ -9,30 +9,32 @@ use App\Models\Eleve;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+use App\Services\DocumentService;
+
 class DocumentController extends Controller
 {
-    public function store(StoreDocumentRequest $request, Eleve $eleve)
+    protected $documentService;
+
+    public function __construct(DocumentService $documentService)
     {
-        $file = $request->file('document');
+        $this->documentService = $documentService;
+    }
 
-        $path = $file->store("eleves/{$eleve->id}/documents", 'public');
-
-        $document = $eleve->documents()->create([
-            'nom_fichier' => $file->getClientOriginalName(),
-            'chemin_stockage' => $path,
-            'type_document' => $request->input('type_document'),
-            'date_upload' => now(),
-            'taille_fichier' => $file->getSize() / 1024,
+    public function store(Request $request, $eleveId)
+    {
+        $request->validate([
+            'file' => 'required|file|max:2048',
+            'type_document' => 'required|string|max:255'
         ]);
+
+        $document = $this->documentService->store($eleveId, $request->file('file'), $request->type_document);
 
         return response()->json($document, 201);
     }
 
     public function destroy(DocumentJustificatif $document)
     {
-        Storage::disk('public')->delete($document->chemin_stockage);
-        $document->delete();
-
+        $this->documentService->delete($document);
         return response()->noContent();
     }
 }

@@ -11,7 +11,7 @@ class Role extends Model
 
     protected $fillable = ['nom_role'];
 
-    // 🔁 Un rôle peut avoir plusieurs utilisateurs
+    // Un rôle peut avoir plusieurs utilisateurs
     public function users()
     {
         return $this->hasMany(User::class);
