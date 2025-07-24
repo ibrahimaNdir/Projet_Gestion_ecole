@@ -14,10 +14,10 @@ class StoreUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'                  => 'required|string|max:255',
-            'email'                 => 'required|email|unique:users,email',
-            'password'              => 'required|string|min:6|confirmed',
-            'role_id'               => 'required|exists:roles,id',
+            'nom_utilisateur' => 'required|string|max:255|unique:users,nom_utilisateur',
+            'email'           => 'required|email|unique:users,email',
+            'mot_de_passe'    => 'required|string|min:6|confirmed',
+            'role_id'         => 'required|exists:roles,id',
         ];
     }
 
@@ -25,7 +25,7 @@ class StoreUserRequest extends FormRequest
     {
         return [
             'email.unique' => 'Cet email est déjà utilisé.',
-            'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
+            'mot_de_passe.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
             'role_id.exists' => 'Le rôle sélectionné est invalide.',
         ];
     }

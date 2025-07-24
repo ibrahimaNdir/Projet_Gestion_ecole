@@ -18,33 +18,27 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    use HasApiTokens, Notifiable;
+
     protected $fillable = [
-        'name',
+        'nom_utilisateur',
         'email',
-        'password',
+        'mot_de_passe',
+        'role_id',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
-        'password',
+        'mot_de_passe',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    public function getAuthPassword()
+    {
+        return $this->mot_de_passe;
+    }
+
     public function role()
     {
         return $this->belongsTo(Role::class);
     }
-
 }
