@@ -7,16 +7,20 @@ use App\Http\Requests\StoreEleveRequest;
 use App\Http\Requests\UpdateEleveRequest;
 use Illuminate\Http\Request;
 use App\Models\Eleve;
+use App\Services\EleveService;
 
 
     /**
      * Display a listing of the resource.
      */
-    use App\Services\EleveService;
-
 class EleveController extends Controller
 {
     protected $eleveService;
+    public function index()
+    {
+        return Eleve::with('user')->paginate(10);
+    }
+
 
     public function __construct(EleveService $eleveService)
     {

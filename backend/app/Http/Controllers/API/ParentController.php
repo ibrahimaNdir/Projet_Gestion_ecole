@@ -16,6 +16,11 @@ use Illuminate\Http\Request;
 
 class ParentController extends Controller
 {
+    public function index()
+    {
+        return response()->json(ParentUser::with('eleves')->paginate(10));
+    }
+
     protected $parentService;
 
     public function __construct(ParentService $parentService)

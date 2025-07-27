@@ -11,7 +11,7 @@ class StoreParentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,11 @@ class StoreParentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'utilisateur_id' => ['required', 'exists:users,id']
+            'utilisateur_id' => ['required', 'exists:users,id'],
+            'nom'       => 'required|string|max:255',
+            'prenom'    => 'required|string|max:255',
+            'email'     => 'required|email|unique:parent_users,email',
+            'telephone' => 'nullable|string|max:20',
         ];
     }
 
