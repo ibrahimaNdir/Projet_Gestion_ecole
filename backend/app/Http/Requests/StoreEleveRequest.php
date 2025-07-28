@@ -27,7 +27,6 @@ class StoreEleveRequest extends FormRequest
             'prenom'           => ['required', 'string'],
             'date_naissance'   => ['required', 'date'],
             'adresse'          => ['nullable', 'string'],
-            'numero_matricule' => ['required', 'string', 'unique:eleves,numero_matricule']
         ];
     }
 

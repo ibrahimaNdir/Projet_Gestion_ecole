@@ -27,7 +27,6 @@ class UpdateEleveRequest extends FormRequest
             'prenom'           => ['sometimes', 'string'],
             'date_naissance'   => ['sometimes', 'date'],
             'adresse'          => ['nullable', 'string'],
-            'numero_matricule' => ['sometimes', 'string', Rule::unique('eleves')->ignore($this->eleve)]
         ];
     }
 

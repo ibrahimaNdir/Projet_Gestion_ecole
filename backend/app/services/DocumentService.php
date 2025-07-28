@@ -18,7 +18,6 @@ class DocumentService
             'chemin_stockage'=> $path,
             'type_document'  => $type,
             'date_upload'    => now(),
-            'taille_fichier' => $file->getSize(),
         ]);
     }
 

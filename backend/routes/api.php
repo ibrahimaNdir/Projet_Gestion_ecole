@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\DocumentController;
 use App\Http\Controllers\API\EleveController;
+use App\Http\Controllers\API\EnseignantController;
 use App\Http\Controllers\API\ParentController;
 use App\Http\Controllers\API\AuthController;
 
@@ -31,8 +32,10 @@ Route::prefix('v1')->group(function () {
 
         Route::apiResource('eleves', EleveController::class);
         Route::apiResource('parents', ParentController::class);
+        Route::apiResource('enseignants', EnseignantController::class);
+        Route::apiResource('documents', DocumentController::class);
         Route::post('parents/{parent}/attach-eleve/{eleve}', [ParentController::class, 'attachEleve']);
-        Route::post('eleves/{eleve}/documents', [DocumentController::class, 'store']);
+        //Route::post('eleves/{eleveId}/documents', [DocumentController::class, 'store']);
         Route::delete('documents/{document}', [DocumentController::class, 'destroy']);
     });
 });

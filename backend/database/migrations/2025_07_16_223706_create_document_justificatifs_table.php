@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string("nom_fichier");
             $table->string("chemin_stockage");
             $table->string("type_document");
-            $table->string("numero_matricule");
             $table->dateTime('date_upload')->useCurrent();
 
             $table->timestamps();
