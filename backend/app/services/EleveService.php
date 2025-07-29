@@ -23,4 +23,9 @@ class EleveService
         $eleve->update($data);
         return $eleve;
     }
+
+    public function compterEleves(): int
+    {
+        return Eleve::count();
+    }
 }

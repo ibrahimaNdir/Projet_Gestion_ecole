@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CompterElevesRequest;
 use App\Http\Requests\StoreEleveRequest;
 use App\Http\Requests\UpdateEleveRequest;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\Eleve;
 use App\Services\EleveService;
@@ -37,6 +39,15 @@ class EleveController extends Controller
     {
         $eleve = $this->eleveService->update($eleve, $request->validated());
         return response()->json($eleve);
+    }
+
+    public function compter(CompterElevesRequest $request): JsonResponse
+    {
+        $nombre = $this->eleveService->compterEleves();
+
+        return response()->json([
+            'nombre_eleves' => $nombre
+        ]);
     }
 
 }

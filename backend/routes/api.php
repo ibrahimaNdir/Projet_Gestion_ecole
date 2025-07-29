@@ -38,4 +38,6 @@ Route::prefix('v1')->group(function () {
         //Route::post('eleves/{eleveId}/documents', [DocumentController::class, 'store']);
         Route::delete('documents/{document}', [DocumentController::class, 'destroy']);
     });
+    Route::get('/nombre-eleves', [EleveController::class, 'compter']);
+
 });
