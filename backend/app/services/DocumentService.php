@@ -15,7 +15,7 @@ class DocumentService
         return DocumentJustificatif::create([
             'eleve_id'       => $eleveId,
             'nom_fichier'    => $file->getClientOriginalName(),
-            'chemin_stockage'=> $path,
+            'chemin_fichier'=> $path,
             'type_document'  => $type,
             'date_upload'    => now(),
         ]);
@@ -23,7 +23,7 @@ class DocumentService
 
     public function delete(DocumentJustificatif $document): void
     {
-        Storage::delete($document->chemin_stockage);
+        Storage::delete($document->chemin_fichier);
         $document->delete();
     }
 }

@@ -35,7 +35,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('enseignants', EnseignantController::class);
         Route::apiResource('documents', DocumentController::class);
         Route::post('parents/{parent}/attach-eleve/{eleve}', [ParentController::class, 'attachEleve']);
-        //Route::post('eleves/{eleveId}/documents', [DocumentController::class, 'store']);
+        Route::post('documents/{eleve}', [DocumentController::class, 'store']);
         Route::delete('documents/{document}', [DocumentController::class, 'destroy']);
     });
     Route::get('/nombre-eleves', [EleveController::class, 'compter']);
