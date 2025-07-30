@@ -20,6 +20,7 @@ class AnneeAcademique extends Model
 
     public function periodesEvaluation()
     {
+
         return $this->hasMany(PeriodeEvaluation::class, 'annee_academique_id');
     }
 

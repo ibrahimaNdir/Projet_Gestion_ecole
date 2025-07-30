@@ -8,5 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Matiere extends Model
 {
     use HasFactory;
-    protected $guarded = [];
+    protected $table = 'matieres';
+
+    // Champs qui peuvent être remplis massivement
+    protected $fillable = [
+        'nom_matiere',
+
+    ];
 }

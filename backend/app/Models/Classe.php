@@ -8,5 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Classe extends Model
 {
     use HasFactory;
-    protected $guarded = [];
+    protected $table = 'classes';
+
+    // Champs qui peuvent être remplis massivement
+    protected $fillable = [
+        'nom_classe',
+
+    ];
+
 }

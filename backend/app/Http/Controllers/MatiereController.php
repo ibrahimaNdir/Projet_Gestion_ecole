@@ -72,4 +72,16 @@ class MatiereController extends Controller
         return response()->json("",204);
         //
     }
+    public function countMatiere()
+    {
+        try {
+            $count = $this->matiereService->count(); // Appel de la méthode count() du service
+            return response()->json($count, 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération du nombre de classes : ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

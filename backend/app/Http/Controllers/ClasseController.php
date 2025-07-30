@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ClasseRequest;
 use App\Models\Classe;
 use App\services\ClasseService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 
@@ -72,5 +73,17 @@ class ClasseController extends Controller
        Classe::destroy($id);
         return response()->json("",204);
         //
+    }
+    public function countClasses(): JsonResponse
+    {
+        try {
+            $count = $this->classeService->count(); // Appel de la méthode count() du service
+            return response()->json($count, 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération du nombre de classes : ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

@@ -75,4 +75,35 @@ class AnneeAcademiqueController extends Controller
         return response()->json("",204);
         //
     }
+    /**
+     * Définit une année académique comme active et désactive toutes les autres.
+     *
+     * @param Request $request La requête contenant l'ID de l'année à activer.
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function setActiveAnnee(AnneeAcademiqueRequest $request): \Illuminate\Http\JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+
+            $annee = $this->anneeAcademiqueService->setActiveAnnee($validated['annee_id']);
+
+            return response()->json([
+                'success' => true,
+                'data' => $annee,
+                'message' => 'Année académique activée avec succès.'
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Données de validation invalides.',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de l\'activation de l\'année académique : ' . $e->getMessage()
+            ], 400);
+        }
+    }
 }
