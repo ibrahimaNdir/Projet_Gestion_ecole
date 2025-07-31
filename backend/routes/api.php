@@ -33,7 +33,6 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('eleves', EleveController::class);
         Route::apiResource('parents', ParentController::class);
         Route::apiResource('enseignants', EnseignantController::class);
-        Route::apiResource('documents', DocumentController::class);
         Route::post('parents/{parent}/attach-eleve/{eleve}', [ParentController::class, 'attachEleve']);
         Route::post('documents/{eleve}', [DocumentController::class, 'store']);
         Route::delete('documents/{document}', [DocumentController::class, 'destroy']);

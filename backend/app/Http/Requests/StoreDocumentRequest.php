@@ -24,8 +24,6 @@ class StoreDocumentRequest extends FormRequest
         return [
             'document'        => ['required', 'file', 'mimes:pdf,jpg,jpeg,png'],
             'type_document'   => ['required', 'string'],
-            'nom_fichier'   => ['required', 'string'],
-            'chemin_fichier'   => ['required', 'string'],
 
         ];
     }
