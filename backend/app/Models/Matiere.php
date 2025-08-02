@@ -5,16 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Enseignant extends Model
+class Matiere extends Model
 {
     use HasFactory;
+    protected $table = 'matieres';
 
+    // Champs qui peuvent être remplis massivement
     protected $fillable = [
-        'nom',
-        'prenom',
-    ];
+        'nom_matiere',
 
-    {
-        return $this->belongsTo(User::class, 'utilisateur_id');
-    }
+    ];
 }

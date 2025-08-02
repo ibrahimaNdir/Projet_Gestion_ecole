@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nom_utilisateur');
             $table->string('email')->unique();
+            $table->foreignId('roles_id')->constrained('roles')->onDelete('cascade');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('mot_de_passe');
             $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
@@ -24,7 +25,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Reverse the migrations.ca
      */
     public function down(): void
     {

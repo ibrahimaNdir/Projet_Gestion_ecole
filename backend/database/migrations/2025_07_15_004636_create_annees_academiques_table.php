@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('matieres', function (Blueprint $table) {
+        Schema::create('annees_academiques', function (Blueprint $table) {
             $table->id();
-            $table->string('nom_matiere')->unique();
+            $table->string('annee_debut', 4);
+            $table->string('annee_fin', 4);
+            $table->boolean('est_actuelle')->default(false);
             $table->timestamps();
         });
     }
@@ -23,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('matieres');
+        Schema::dropIfExists('annees_academiques');
     }
 };
