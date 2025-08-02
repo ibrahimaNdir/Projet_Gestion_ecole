@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 class Eleve extends Model
 {
     use HasFactory;
@@ -32,5 +34,31 @@ class Eleve extends Model
     public function documents()
     {
         return $this->hasMany(DocumentJustificatif::class);
+    }
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($eleve) {
+            if (empty($eleve->matricule)) {
+                $eleve->matricule = self::generateMatricule();
+            }
+        });
+    }
+    private static function generateMatricule()
+    {
+        // Exemple de matricule : "ELEVE" + année en 4 chiffres + un numéro aléatoire unique
+        $year = date('Y');
+        $random = mt_rand(1000, 9999);
+
+        // Tu peux aussi vérifier en base que ce matricule n'existe pas pour garantir l'unicité
+        $matricule = "ELEVE{$year}{$random}";
+
+        while (self::where('matricule', $matricule)->exists()) {
+            $random = mt_rand(1000, 9999);
+            $matricule = "ELEVE{$year}{$random}";
+        }
+
+        return $matricule;
     }
 }

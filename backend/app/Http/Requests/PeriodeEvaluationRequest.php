@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreEleveRequest extends FormRequest
+class PeriodeEvaluationRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,13 +22,16 @@ class StoreEleveRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'utilisateur_id'   => ['required', 'exists:users,id'],
-            'nom'              => ['required', 'string'],
-            'prenom'           => ['required', 'string'],
-            'date_naissance'   => ['required', 'date'],
-            'adresse'          => ['nullable', 'string'],
-            'numero_matricule' => ['required', 'string', 'unique:eleves,numero_matricule']
+            'nom_periode' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+            'annee_academique_id' => 'required|integer|exists:annees_academiques,id', // Doit être un ID valide d'une année académique existante
+            'date_debut' => 'required|date',
+            'date_fin'=>'required|date',
+
+            //
         ];
     }
-
 }

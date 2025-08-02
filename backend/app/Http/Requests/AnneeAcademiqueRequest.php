@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateEleveRequest extends FormRequest
+class AnneeAcademiqueRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -19,17 +19,25 @@ class UpdateEleveRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-
     public function rules(): array
     {
         return [
-            'nom'              => ['sometimes', 'string'],
-            'prenom'           => ['sometimes', 'string'],
-            'date_naissance'   => ['sometimes', 'date'],
-            'adresse'          => ['nullable', 'string'],
-            'numero_matricule' => ['sometimes', 'string', Rule::unique('eleves')->ignore($this->eleve)]
+            'annee_debut' => [
+                'required',
+                'digits:4', // Doit être 4 chiffres (ex: 2024)
+                'integer',
+
+            ],
+            'annee_fin' => [
+                'required',
+                'digits:4',
+                'integer',
+                'after:annee_debut',
+
+            ],
+            'est_actuelle' => 'boolean', // Doit être true ou false
+
+            //
         ];
     }
-
-
 }

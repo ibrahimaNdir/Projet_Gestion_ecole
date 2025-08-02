@@ -13,8 +13,9 @@ class DocumentJustificatif extends Model
         'nom_fichier',
         'chemin_stockage',
         'type_document',
+        'chemin_fichier',
         'date_upload',
-        'taille_fichier'
+
     ];
 
     public function eleve()
