@@ -5,12 +5,21 @@ namespace App\services;
 use App\Models\Bulletins;
 use App\Models\MatiereCoefClasse;
 use App\Models\Notes;
+use Illuminate\Support\Facades\View;
+use Dompdf\Dompdf;
+use Dompdf\Options;
+use Illuminate\Support\Facades\Storage;
+use Exception;
+use Illuminate\Support\Collection;
+use App\Models\Eleve;
+use App\Models\AnneeAcademique;
+use App\Models\PeriodeEvaluation;
 
 class BulletinService
 {
     protected AnneeAcademiqueService $anneeAcademiqueService;
-    protected NotesService $noteService; // Pour récupérer les notes
-    protected MatiereCoefClasseService $matiereClasseCoefficientService; // Pour les coefficients
+    protected NotesService $noteService;
+    protected MatiereCoefClasseService $matiereClasseCoefficientService;
 
     public function __construct(
         AnneeAcademiqueService $anneeAcademiqueService,
@@ -23,28 +32,23 @@ class BulletinService
     }
 
     /**
-     *
+     * Display a listing of the resource.
      */
     public function index()
     {
-        // Charge les relations eleve, anneeAcademique et periodeEvaluation
         return Bulletins::with(['eleve', 'anneeAcademique', 'periodeEvaluation'])->get();
-
     }
 
     /**
      * Crée un nouveau bulletin.
      *
      * @param array $data Les données validées pour la création.
-     * @return Bulletin L'instance du bulletin créée.
+     * @return Bulletins L'instance du bulletin créée.
      * @throws Exception Si la création échoue.
      */
-    public function store(array $data): Bulletin
+    public function store(array $data): Bulletins
     {
         try {
-            // Utilise firstOrCreate pour éviter les doublons basés sur la contrainte d'unicité composite.
-            // Si le bulletin existe déjà pour cet élève, cette année et cette période, il est retourné.
-            // Sinon, un nouveau bulletin est créé.
             return Bulletins::firstOrCreate(
                 [
                     'eleve_id' => $data['eleve_id'],
@@ -66,32 +70,21 @@ class BulletinService
     }
 
     /**
-
-     */
-    public function show(int $id)
-    {
-        MatiereCoefClasse::destroy($id);
-        return true;
-    }
-
-    /**
      * Met à jour un bulletin existant.
      *
      * @param int $id L'ID du bulletin à mettre à jour.
      * @param array $data Les données validées pour la mise à jour.
-     * @return Bulletin|null Le bulletin mis à jour ou null si non trouvé.
+     * @return Bulletins|null Le bulletin mis à jour ou null si non trouvé.
      * @throws Exception Si la mise à jour échoue.
      */
     public function update(int $id, array $data): ?Bulletins
     {
         try {
             $bulletin = Bulletins::find($id);
-
             if ($bulletin) {
                 $bulletin->update($data);
-                $bulletin->load(['eleve', 'anneeAcademique', 'periodeEvaluation']); // Recharger les relations
+                $bulletin->load(['eleve', 'anneeAcademique', 'periodeEvaluation']);
             }
-
             return $bulletin;
         } catch (\Throwable $e) {
             throw new Exception("Erreur lors de la mise à jour du bulletin : " . $e->getMessage());
@@ -110,39 +103,37 @@ class BulletinService
     }
 
     /**
-     * Récupère tous les bulletins d'un élève pour une année académique donnée (pour consultation historique).
+     * Récupère tous les bulletins d'un élève pour une année académique donnée.
      *
      * @param int $eleveId L'ID de l'élève.
      * @param int $anneeAcademiqueId L'ID de l'année académique.
-     * @return Collection<int, Bulletin>
+     * @return Collection<int, Bulletins>
      */
     public function getBulletinsByEleveAndAnnee(int $eleveId, int $anneeAcademiqueId): Collection
     {
         return Bulletins::where('eleve_id', $eleveId)
             ->where('annee_academique_id', $anneeAcademiqueId)
-            ->with(['periodeEvaluation']) // Charger la période pour le contexte
+            ->with(['periodeEvaluation'])
             ->get();
     }
 
     /**
-     * Récupère tous les bulletins d'un élève pour une période d'évaluation donnée (pour consultation historique).
+     * Récupère tous les bulletins d'un élève pour une période d'évaluation donnée.
      *
      * @param int $eleveId L'ID de l'élève.
      * @param int $periodeEvaluationId L'ID de la période d'évaluation.
-     * @return Collection<int, Bulletin>
+     * @return Collection<int, Bulletins>
      */
     public function getBulletinsByEleveAndPeriode(int $eleveId, int $periodeEvaluationId): Collection
     {
-        // Pour cette méthode, l'année académique est implicitement liée à la période d'évaluation.
-        // Si la période d'évaluation est toujours unique par année, pas besoin de la passer explicitement.
         return Bulletins::where('eleve_id', $eleveId)
             ->where('periode_evaluation_id', $periodeEvaluationId)
-            ->with(['anneeAcademique']) // Charger l'année académique pour le contexte
+            ->with(['anneeAcademique'])
             ->get();
     }
 
     /**
-     * Récupère un bulletin spécifique par élève, année académique et période d'évaluation (pour consultation historique).
+     * Récupère un bulletin spécifique par élève, année académique et période d'évaluation.
      *
      * @param int $eleveId L'ID de l'élève.
      * @param int $anneeAcademiqueId L'ID de l'année académique.
@@ -160,52 +151,73 @@ class BulletinService
 
     /**
      * Génère un bulletin pour un élève, une année et une période spécifiques.
-     * Cette méthode est un placeholder. Dans une application réelle, elle inclurait :
-     * 1. La récupération de toutes les notes de l'élève pour cette période/année.
-     * 2. Le calcul des moyennes par matière et de la moyenne générale.
-     * 3. La détermination de la mention et du rang.
-     * 4. La génération d'un fichier PDF (par ex. avec des librairies comme Dompdf ou Snappy).
-     * 5. Le stockage du PDF et la mise à jour du Bulletin en base de données avec l'URL et les moyennes/mentions.
-     *
-     * Pour cet exemple, elle se contente de créer/mettre à jour le bulletin avec les données fournies.
      *
      * @param int $eleveId L'ID de l'élève.
-     * @param int $anneeAcademiqueId L'ID de l'année académique. // Gardé pour la flexibilité de l'admin
+     * @param int $anneeAcademiqueId L'ID de l'année académique.
      * @param int $periodeEvaluationId L'ID de la période d'évaluation.
-     * @param array $data Données optionnelles pour le bulletin (moyenne, mention, etc.).
-     * @return Bulletin
+     * @return Bulletins
      * @throws Exception Si la génération/mise à jour échoue.
      */
-    public function generateBulletin(int $eleveId, int $anneeAcademiqueId, int $periodeEvaluationId, array $data = []): Bulletin
+    public function generateBulletin(int $eleveId, int $anneeAcademiqueId, int $periodeEvaluationId): Bulletins
     {
         try {
-            // Dans un scénario réel, vous calculeriez ici la moyenne, mention, rang, etc.
-            // Pour l'exemple, nous utilisons les données passées ou des valeurs par défaut.
-            $moyenneGenerale = $data['moyenne_generale'] ?? $this->calculateMoyenneGenerale($eleveId, $anneeAcademiqueId, $periodeEvaluationId);
-            $mention = $data['mention'] ?? $this->determineMention($moyenneGenerale);
-            $rangClasse = $data['rang_classe'] ?? null; // Le calcul du rang est plus complexe et dépend de la classe de l'élève
+            // 1. Récupérer les données de base
+            $eleve = Eleve::with('classe')->findOrFail($eleveId);
+            $annee = AnneeAcademique::findOrFail($anneeAcademiqueId);
+            $periode = PeriodeEvaluation::findOrFail($periodeEvaluationId);
 
-            // Crée ou met à jour le bulletin
-            $bulletin =Bulletins::updateOrCreate(
+            // 2. Préparer les données pour le bulletin (notes par matière, moyenne, etc.)
+            $bulletinData = $this->getNotesDetailsPourBulletin($eleveId, $anneeAcademiqueId, $periodeEvaluationId);
+
+            // 3. Calculer la moyenne générale et la mention
+            $moyenneGenerale = $bulletinData['moyenneGenerale'];
+            $mention = $this->determineMention($moyenneGenerale);
+
+            // 4. Rendre la vue Blade en HTML
+            $html = View::make('bulletins.bulletin', [
+                'eleve' => $eleve,
+                'annee' => $annee,
+                'periode' => $periode,
+                'matieres' => $bulletinData['matieres'], // On passe les données préparées
+                'moyenneGenerale' => $moyenneGenerale,
+                'mention' => $mention
+            ])->render();
+
+            // 5. Initialiser Dompdf
+            $options = new Options();
+            $options->set('isHtml5ParserEnabled', true);
+            $options->set('isRemoteEnabled', true);
+            $dompdf = new Dompdf($options);
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('A4', 'portrait');
+
+            // 6. Générer le PDF
+            $dompdf->render();
+
+            // 7. Sauvegarder le fichier PDF
+            $fileName = "bulletin_{$eleveId}_{$anneeAcademiqueId}_{$periodeEvaluationId}.pdf";
+            $pdfContent = $dompdf->output();
+            Storage::disk('public')->put("bulletins/{$fileName}", $pdfContent);
+            $url_bulletin_pdf = Storage::disk('public')->url("bulletins/{$fileName}");
+
+            // 8. Créer ou mettre à jour le bulletin dans la base de données AVEC toutes les données
+            $bulletin = Bulletins::updateOrCreate(
                 [
                     'eleve_id' => $eleveId,
                     'annee_academique_id' => $anneeAcademiqueId,
                     'periode_evaluation_id' => $periodeEvaluationId,
                 ],
                 [
-                    'date_generation' => now(), // Date de génération actuelle
+                    'date_generation' => now(),
                     'moyenne_generale' => $moyenneGenerale,
                     'mention' => $mention,
-                    'rang_classe' => $rangClasse,
-                    'appreciation_generale' => $data['appreciation_generale'] ?? null,
-                    // 'url_bulletin_pdf' => 'path/to/generated_bulletin.pdf', // Mettre à jour après la génération réelle du PDF
+                    'url_bulletin_pdf' => $url_bulletin_pdf,
+                    'rang_classe' => null, // Logique à ajouter si nécessaire
+                    'appreciation_generale' => null, // Logique à ajouter si nécessaire
                 ]
             );
 
-            // Ici, vous appelleriez la logique de génération de PDF et mettriez à jour 'url_bulletin_pdf'
-            // Exemple: $pdfPath = $this->generatePdf($bulletin);
-            // $bulletin->update(['url_bulletin_pdf' => $pdfPath]);
-
+            // Important : retourne le bulletin mis à jour, il est maintenant complet
             return $bulletin->load(['eleve', 'anneeAcademique', 'periodeEvaluation']);
 
         } catch (\Throwable $e) {
@@ -214,75 +226,66 @@ class BulletinService
     }
 
     /**
-     * Calcule la moyenne générale pondérée d'un élève pour une période d'évaluation.
-     * Cette méthode est mise à jour pour utiliser les coefficients des matières.
+     * Récupère et prépare les notes par matière et la moyenne générale pour un bulletin.
      *
      * @param int $eleveId L'ID de l'élève.
      * @param int $anneeAcademiqueId L'ID de l'année académique.
      * @param int $periodeEvaluationId L'ID de la période d'évaluation.
-     * @return float
+     * @return array
      */
-    protected function calculateMoyenneGenerale(int $eleveId, int $anneeAcademiqueId, int $periodeEvaluationId): float
+    protected function getNotesDetailsPourBulletin(int $eleveId, int $anneeAcademiqueId, int $periodeEvaluationId): array
     {
-        // Récupérer toutes les notes de l'élève pour la période et l'année spécifiées
-        $notes = $this->noteService->getNotesByEleveAndPeriode($eleveId, $periodeEvaluationId);
+        $notes = Notes::with(['cours.matiere', 'cours.classe'])
+            ->where('eleve_id', $eleveId)
+            ->where('periode_evaluation_id', $periodeEvaluationId)
+            ->get();
 
+        $matieres = collect([]);
         $totalPointsPonderes = 0;
         $totalCoefficients = 0;
-        $matieresProcessed = []; // Pour s'assurer de ne traiter qu'une fois la moyenne par matière
 
-        foreach ($notes as $note) {
-            $matiereId = $note->cours->matiere_id;
-            $classeId = $note->cours->classe_id; // L'élève est dans cette classe pour ce cours
+        // Groupement des notes par matière
+        $notesByMatiere = $notes->groupBy('cours.matiere.id');
 
-            // Si la matière n'a pas encore été traitée pour cette période/classe
-            if (!isset($matieresProcessed[$matiereId])) {
-                // Récupérer toutes les notes de l'élève pour cette matière et cette période
-                // (via le cours de cette matière)
-                $notesMatiere = Notes::where('eleve_id', $eleveId)
-                    ->where('periode_evaluation_id', $periodeEvaluationId)
-                    ->whereHas('cours', function ($query) use ($matiereId, $anneeAcademiqueId) {
-                        $query->where('matiere_id', $matiereId)
-                            ->where('annee_academique_id', $anneeAcademiqueId);
-                    })
-                    ->get();
+        foreach ($notesByMatiere as $matiereId => $notesCollection) {
+            $matiere = $notesCollection->first()->cours->matiere;
+            $classeId = $notesCollection->first()->cours->classe_id;
 
-                if ($notesMatiere->isNotEmpty()) {
-                    $moyenneMatiere = $notesMatiere->avg('valeur_note');
+            $moyenneMatiere = $notesCollection->avg('valeur_note');
+            $coefficient = $this->matiereClasseCoefficientService->getCoefficient(
+                $matiereId,
+                $classeId
+            );
 
-                    // Récupérer le coefficient pour cette matière et cette classe
-                    // L'année académique n'est PLUS un critère pour le coefficient lui-même.
-                    $coefficient = $this->matiereClasseCoefficientService->getCoefficient(
-                        $matiereId,
-                        $classeId
-                    );
-
-                    // Si aucun coefficient n'est trouvé, on peut choisir de :
-                    // 1. Lancer une exception (recommandé pour s'assurer que tous les coefficients sont définis)
-                    // 2. Utiliser un coefficient par défaut (ex: 1)
-                    if ($coefficient === null) {
-                        // Pour l'instant, lançons une exception pour forcer la configuration
-                        throw new Exception("Coefficient non défini pour la matière ID {$matiereId} dans la classe ID {$classeId}.");
-                        // Ou: $coefficient = 1; // Utiliser un défaut
-                    }
-
-                    $totalPointsPonderes += ($moyenneMatiere * $coefficient);
-                    $totalCoefficients += $coefficient;
-                    $matieresProcessed[$matiereId] = true; // Marquer la matière comme traitée
-                }
+            if ($coefficient === null) {
+                // Gérer le cas où le coefficient n'est pas défini
+                $coefficient = 1; // Ou lancer une exception
             }
+
+            $notePonderee = $moyenneMatiere * $coefficient;
+
+            $totalPointsPonderes += $notePonderee;
+            $totalCoefficients += $coefficient;
+
+            $matieres->push([
+                'nom' => $matiere->nom_matiere,
+                'moyenne' => round($moyenneMatiere, 2),
+                'coefficient' => $coefficient,
+                'note_ponderee' => round($notePonderee, 2),
+            ]);
         }
 
-        if ($totalCoefficients === 0) {
-            return 0.0; // Éviter la division par zéro si l'élève n'a pas de notes ou de coefficients définis.
-        }
+        $moyenneGenerale = $totalCoefficients > 0 ? round((float) ($totalPointsPonderes / $totalCoefficients), 2) : 0.0;
 
-        return round((float) ($totalPointsPonderes / $totalCoefficients), 2); // Arrondir à 2 décimales
+        return [
+            'matieres' => $matieres,
+            'moyenneGenerale' => $moyenneGenerale,
+        ];
     }
+
 
     /**
      * Détermine la mention en fonction de la moyenne générale.
-     * Exemple de logique simple.
      *
      * @param float $moyenne La moyenne générale.
      * @return string
@@ -303,8 +306,4 @@ class BulletinService
             return 'Insuffisant';
         }
     }
-
-
-
-
 }

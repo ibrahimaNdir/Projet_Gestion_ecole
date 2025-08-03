@@ -128,10 +128,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('notes/by-cours-periode', [NotesController::class, 'getNotesByCoursAndPeriode']);
         // Récupère les notes d'un élève pour un cours et une période donnés
         Route::get('notes/by-eleve-cours-periode', [NotesController::class, 'getNotesByEleveCoursPeriode']);
-        // Calcule et récupère la moyenne des notes d'un élève pour un cours spécifique
-        Route::get('notes/average-by-eleve-cours', [NotesController::class, 'getAverageNoteByEleveAndCours']);
-        // Calcule et récupère la moyenne des notes d'un élève pour une période donnée
-        Route::get('notes/average-by-eleve-periode', [NotesController::class, 'getAverageNoteByEleveAndPeriode']);
 
 
         // Gestion des Bulletins
@@ -166,6 +162,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('notes', [NotesController::class, 'store']); // Saisie de notes
         Route::put('notes/{id}', [NotesController::class, 'update']); // Mise à jour de ses notes
         Route::delete('notes/{id}', [NotesController::class, 'destroy']); // Suppression de ses notes
+        // Calcule et récupère la moyenne des notes d'un élève pour un cours spécifique
+        Route::get('notes/average-by-eleve-cours', [NotesController::class, 'getAverageNoteByEleveAndCours']);
+        // Calcule et récupère la moyenne des notes d'un élève pour une période donnée
+        Route::get('notes/average-by-eleve-periode', [NotesController::class, 'getAverageNoteByEleveAndPeriode']);
+
+
+
+
+
 
         // Consultation de ses cours pour l'année active
         Route::get('enseignant/mes-cours', [CoursController::class, 'getCoursByEnseignant']);
