@@ -45,6 +45,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:admin')->group(function () {
         // Routes de votre branche 'feature/academic-structure' pour l'administration
         Route::apiResource('anneesacademiques', AnneeAcademiqueController::class);
+        // Route qui permet d'activer une anne
         Route::post('anneesacademiques/set-active', [AnneeAcademiqueController::class, 'setActiveAnnee']);
 
         // Gestion des Enseignants (profils)
