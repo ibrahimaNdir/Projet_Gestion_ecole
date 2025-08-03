@@ -8,6 +8,7 @@
       <sourceFolder url="file://$MODULE_DIR$/backend/tests" isTestSource="true" packagePrefix="Tests\" />
       <sourceFolder url="file://$MODULE_DIR$/backend/tests/Feature" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/backend/tests/Unit" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/backend/backend" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/brick/math" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/carbonphp/carbon-doctrine-types" />
       <excludeFolder url="file://$MODULE_DIR$/backend/vendor/composer" />
