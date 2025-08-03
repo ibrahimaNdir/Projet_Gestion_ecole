@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('document_justificatifs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('eleve_id')->constrained('eleves')->onDelete('cascade');
+            $table->foreignId('eleve_id')->constrained('eleves')
+                ->onDelete('cascade');
             $table->string("nom_fichier");
             $table->string("chemin_fichier");
             $table->string("type_document");
