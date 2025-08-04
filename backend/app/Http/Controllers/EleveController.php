@@ -3,19 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\Enseignant;
+use App\Models\Eleve;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class EnseignantController extends Controller
+class EleveController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $enseignants = Enseignant::with(['matieres', 'classes'])->get();
-        return response()->json($enseignants);
+        $eleves = Eleve::with(['parents', 'classes'])->get();
+        return response()->json($eleves);
     }
 
     /**
@@ -31,10 +31,7 @@ class EnseignantController extends Controller
             'sexe' => 'required|in:M,F',
             'adresse' => 'required|string',
             'telephone' => 'required|string|max:20',
-            'email' => 'required|email|unique:enseignants,email',
-            'specialite' => 'required|string|max:255',
-            'diplome' => 'required|string|max:255',
-            'date_embauche' => 'required|date',
+            'email' => 'required|email|unique:eleves,email',
         ]);
 
         if ($validator->fails()) {
@@ -44,22 +41,22 @@ class EnseignantController extends Controller
             ], 422);
         }
 
-        $enseignant = Enseignant::create($request->all());
-        return response()->json($enseignant, 201);
+        $eleve = Eleve::create($request->all());
+        return response()->json($eleve, 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Enseignant $enseignant)
+    public function show(Eleve $eleve)
     {
-        return response()->json($enseignant->load(['matieres', 'classes']));
+        return response()->json($eleve->load(['parents', 'classes']));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Enseignant $enseignant)
+    public function update(Request $request, Eleve $eleve)
     {
         $validator = Validator::make($request->all(), [
             'nom' => 'sometimes|required|string|max:255',
@@ -69,10 +66,7 @@ class EnseignantController extends Controller
             'sexe' => 'sometimes|required|in:M,F',
             'adresse' => 'sometimes|required|string',
             'telephone' => 'sometimes|required|string|max:20',
-            'email' => 'sometimes|required|email|unique:enseignants,email,' . $enseignant->id,
-            'specialite' => 'sometimes|required|string|max:255',
-            'diplome' => 'sometimes|required|string|max:255',
-            'date_embauche' => 'sometimes|required|date',
+            'email' => 'sometimes|required|email|unique:eleves,email,' . $eleve->id,
             'statut' => 'sometimes|required|in:actif,inactif',
         ]);
 
@@ -83,25 +77,25 @@ class EnseignantController extends Controller
             ], 422);
         }
 
-        $enseignant->update($request->all());
-        return response()->json($enseignant);
+        $eleve->update($request->all());
+        return response()->json($eleve);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Enseignant $enseignant)
+    public function destroy(Eleve $eleve)
     {
-        $enseignant->delete();
-        return response()->json(['message' => 'Enseignant supprimé avec succès']);
+        $eleve->delete();
+        return response()->json(['message' => 'Élève supprimé avec succès']);
     }
 
     /**
-     * Get the count of teachers.
+     * Get the count of students.
      */
     public function count()
     {
-        $count = Enseignant::count();
+        $count = Eleve::count();
         return response()->json(['count' => $count]);
     }
 }

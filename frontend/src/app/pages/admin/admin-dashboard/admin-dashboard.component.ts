@@ -13,6 +13,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { AuthService } from '../../../services/auth.service';
+import { DashboardService } from '../../../services/dashboard.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -596,7 +597,8 @@ export class AdminDashboardComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
-    public router: Router
+    public router: Router,
+    private dashboardService: DashboardService
   ) {}
 
   ngOnInit(): void {
@@ -605,13 +607,26 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadStats(): void {
-    // Simulate loading stats - replace with actual API calls
-    this.stats = {
-      eleves: 245,
-      enseignants: 18,
-      classes: 12,
-      matieres: 15
-    };
+    // Load real statistics from API
+    this.dashboardService.getEleveCount().subscribe({
+      next: (response) => this.stats.eleves = response.count,
+      error: (error) => console.error('Error loading student count:', error)
+    });
+
+    this.dashboardService.getEnseignantCount().subscribe({
+      next: (response) => this.stats.enseignants = response.count,
+      error: (error) => console.error('Error loading teacher count:', error)
+    });
+
+    this.dashboardService.getClasseCount().subscribe({
+      next: (response) => this.stats.classes = response.count,
+      error: (error) => console.error('Error loading class count:', error)
+    });
+
+    this.dashboardService.getMatiereCount().subscribe({
+      next: (response) => this.stats.matieres = response.count,
+      error: (error) => console.error('Error loading subject count:', error)
+    });
   }
 
   logout(): void {

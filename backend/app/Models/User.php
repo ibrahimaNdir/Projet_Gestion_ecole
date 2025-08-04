@@ -23,6 +23,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -43,11 +44,6 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-    // Relation One-to-Many avec Role (un utilisateur a un rôle)
-    public function role(): BelongsTo
-    {
-        return $this->belongsTo(Role::class, 'roles_id');
-    }
 
     // --- Nouvelle relation pour les parents d'élèves ---
     /**

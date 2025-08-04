@@ -2,31 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ClasseRequest;
+use App\Http\Controllers\Controller;
 use App\Models\Classe;
-use App\services\ClasseService;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Validator;
 
 class ClasseController extends Controller
 {
-    protected $classeService;
-    /**
-     * Display a listing of the resource.
-     */
-    public function __construct()
-    {
-        $this->classeService = new ClasseService();
-    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $classe =  $this->classeService ->index();
-        return response()->json($classe,200);
-        //
+        $classes = Classe::with(['eleves', 'enseignants'])->get();
+        return response()->json($classes);
     }
 
     /**
@@ -34,56 +23,71 @@ class ClasseController extends Controller
      */
     public function store(Request $request)
     {
-        $classe =  $this->classeService->store($request->validated());
-        return response()->json($classe ,201);
-        //
+        $validator = Validator::make($request->all(), [
+            'nom' => 'required|string|max:255',
+            'niveau' => 'required|string|max:50',
+            'capacite' => 'required|integer|min:1',
+            'description' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $classe = Classe::create($request->all());
+        return response()->json($classe, 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(Classe $classe)
     {
-        $classe = Classe::find($id);
-        return response()->json($classe,200);
-        //
+        return response()->json($classe->load(['eleves', 'enseignants']));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(ClasseRequest $request, $id)
+    public function update(Request $request, Classe $classe)
     {
-        $validated = $request->validated();
+        $validator = Validator::make($request->all(), [
+            'nom' => 'sometimes|required|string|max:255',
+            'niveau' => 'sometimes|required|string|max:50',
+            'capacite' => 'sometimes|required|integer|min:1',
+            'description' => 'nullable|string',
+            'statut' => 'sometimes|required|in:active,inactive',
+        ]);
 
-        if($validated){
-            $classe = Classe::find($id);
-            $classe->update($validated);
-
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
         }
-        return  response()->json($classe,200);
-        //
+
+        $classe->update($request->all());
+        return response()->json($classe);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(Classe $classe)
     {
-       Classe::destroy($id);
-        return response()->json("",204);
-        //
+        $classe->delete();
+        return response()->json(['message' => 'Classe supprimée avec succès']);
     }
-    public function countClasses(): JsonResponse
+
+    /**
+     * Get the count of classes.
+     */
+    public function count()
     {
-        try {
-            $count = $this->classeService->count(); // Appel de la méthode count() du service
-            return response()->json($count, 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de la récupération du nombre de classes : ' . $e->getMessage()
-            ], 500);
-        }
+        $count = Classe::count();
+        return response()->json(['count' => $count]);
     }
 }

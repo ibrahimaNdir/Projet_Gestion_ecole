@@ -8,8 +8,9 @@ use App\Http\Controllers\AnneeAcademiqueController;
 use App\Http\Controllers\BulletinsController;
 use App\Http\Controllers\ClasseController;
 use App\Http\Controllers\CoursController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EleveClasseController;
-use App\Http\Controllers\EnseignantController as NewEnseignantController; // Utilisez un alias pour éviter les conflits
+use App\Http\Controllers\EnseignantController;
 use App\Http\Controllers\EnseignantMatiereController;
 use App\Http\Controllers\MatiereCoefClasseController;
 use App\Http\Controllers\MatiereController;
@@ -30,35 +31,37 @@ use Illuminate\Support\Facades\Route;
 */
 
 // --- Routes publiques (pas d'authentification requise) ---
-Route::prefix('v1')->group(function () {
-    Route::post('register', [AuthController::class, 'register']);
-    Route::post('login', [AuthController::class, 'login']);
 
-    // Vous pouvez également ajouter ici d'autres routes publiques
-    Route::get('/nombre-eleves', [EleveController::class, 'compter']);
-});
+Route::post('register', [AuthController::class, 'register']);
+Route::post('login', [AuthController::class, 'login']);
+
+// Vous pouvez également ajouter ici d'autres routes publiques
+Route::get('/nombre-eleves', [EleveController::class, 'compter']);
 
 // --- Routes protégées par l'authentification (Sanctum) ---
 Route::middleware('auth:sanctum')->group(function () {
 
     // --- Routes d'Administration (rôle 'admin' requis) ---
     Route::middleware('role:admin')->group(function () {
+        // Dashboard statistics
+        Route::get('dashboard/stats', [DashboardController::class, 'stats']);
+
         // Routes de votre branche 'feature/academic-structure' pour l'administration
         Route::apiResource('anneesacademiques', AnneeAcademiqueController::class);
         // Route qui permet d'activer une anne
         Route::post('anneesacademiques/set-active', [AnneeAcademiqueController::class, 'setActiveAnnee']);
 
         // Gestion des Enseignants (profils)
-        Route::apiResource('enseignants', NewEnseignantController::class);
-        Route::get('enseignants/count', [NewEnseignantController::class, 'countEnseignant']);
+        Route::apiResource('enseignants', EnseignantController::class);
+        Route::get('enseignants/count', [EnseignantController::class, 'count']);
 
         // Gestion des Classes
         Route::apiResource('classes', ClasseController::class);
-        Route::get('classes/count', [ClasseController::class, 'countClasses']);
+        Route::get('classes/count', [ClasseController::class, 'count']);
 
         // Gestion des Matières
         Route::apiResource('matieres', MatiereController::class);
-        Route::get('matieres/count', [MatiereController::class, 'countMatiere']);
+        Route::get('matieres/count', [MatiereController::class, 'count']);
 
         // Gestion des Périodes d'Évaluation
         Route::apiResource('periodes', PeriodeEvaluationController::class);
@@ -145,6 +148,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // Routes de votre branche 'mor_ndiaye' que vous souhaitez conserver (gestion des documents et parents)
         // Gère les opérations CRUD (Create, Read, Update, Delete) pour la ressource Eleve
         Route::apiResource('eleves', EleveController::class);
+        Route::get('eleves/count', [EleveController::class, 'count']);
 
 // Gère les opérations CRUD pour la ressource Parent
         Route::apiResource('parents', ParentController::class);

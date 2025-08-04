@@ -10,9 +10,31 @@ class Matiere extends Model
     use HasFactory;
     protected $table = 'matieres';
 
-    // Champs qui peuvent être remplis massivement
     protected $fillable = [
-        'nom_matiere',
-
+        'nom',
+        'code',
+        'description',
+        'statut'
     ];
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'id';
+    }
+
+    public function enseignants()
+    {
+        return $this->belongsToMany(Enseignant::class, 'enseignantmatiere', 'matiere_id', 'enseignant_id')
+            ->withTimestamps();
+    }
+
+    public function classes()
+    {
+        return $this->belongsToMany(Classe::class, 'matiere_classe_coefficients', 'matiere_id', 'classe_id')
+            ->withPivot('coefficient')
+            ->withTimestamps();
+    }
 }

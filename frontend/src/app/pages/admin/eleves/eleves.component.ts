@@ -20,6 +20,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { Eleve, CreateEleveRequest, UpdateEleveRequest } from '../../../models/eleve.model';
+import { EleveService } from '../../../services/eleve.service';
 
 @Component({
   selector: 'app-eleves',
@@ -553,7 +554,8 @@ export class ElevesComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private eleveService: EleveService
   ) {
     this.studentForm = this.fb.group({
       nom: ['', Validators.required],
@@ -579,44 +581,17 @@ export class ElevesComponent implements OnInit {
   loadStudents(): void {
     this.isLoading = true;
 
-    // Simulate API call - replace with actual service
-    setTimeout(() => {
-      const mockStudents: Eleve[] = [
-        {
-          id: 1,
-          nom: 'Dupont',
-          prenom: 'Marie',
-          date_naissance: '2008-05-15',
-          lieu_naissance: 'Paris, France',
-          sexe: 'F',
-          adresse: '123 Rue de la Paix, 75001 Paris',
-          telephone: '+33 6 12 34 56 78',
-          email: 'marie.dupont@email.com',
-          statut: 'actif',
-          date_inscription: '2023-09-01',
-          created_at: '2023-09-01T00:00:00Z',
-          updated_at: '2023-09-01T00:00:00Z'
-        },
-        {
-          id: 2,
-          nom: 'Martin',
-          prenom: 'Pierre',
-          date_naissance: '2007-12-03',
-          lieu_naissance: 'Lyon, France',
-          sexe: 'M',
-          adresse: '456 Avenue des Champs, 69001 Lyon',
-          telephone: '+33 6 98 76 54 32',
-          email: 'pierre.martin@email.com',
-          statut: 'actif',
-          date_inscription: '2023-09-01',
-          created_at: '2023-09-01T00:00:00Z',
-          updated_at: '2023-09-01T00:00:00Z'
-        }
-      ];
-
-      this.dataSource.data = mockStudents;
-      this.isLoading = false;
-    }, 1000);
+    this.eleveService.getEleves().subscribe({
+      next: (eleves) => {
+        this.dataSource.data = eleves;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading students:', error);
+        this.snackBar.open('Erreur lors du chargement des élèves', 'Fermer', { duration: 5000 });
+        this.isLoading = false;
+      }
+    });
   }
 
   applyFilter(): void {
@@ -675,67 +650,87 @@ export class ElevesComponent implements OnInit {
       this.isSubmitting = true;
 
       const formData = this.studentForm.value;
+      const studentData = {
+        ...formData,
+        date_naissance: formData.date_naissance.toISOString().split('T')[0]
+      };
 
-      // Simulate API call
-      setTimeout(() => {
-        if (this.isEditing && this.selectedStudent) {
-          // Update existing student
-          const index = this.dataSource.data.findIndex(s => s.id === this.selectedStudent!.id);
-          if (index !== -1) {
-            this.dataSource.data[index] = {
-              ...this.selectedStudent,
-              ...formData,
-              date_naissance: formData.date_naissance.toISOString().split('T')[0]
-            };
-            this.dataSource._updateChangeSubscription();
+      if (this.isEditing && this.selectedStudent) {
+        this.eleveService.updateEleve(this.selectedStudent.id, studentData).subscribe({
+          next: (updatedEleve) => {
+            const index = this.dataSource.data.findIndex(s => s.id === this.selectedStudent!.id);
+            if (index !== -1) {
+              this.dataSource.data[index] = updatedEleve;
+              this.dataSource._updateChangeSubscription();
+            }
             this.snackBar.open('Élève modifié avec succès', 'Fermer', { duration: 3000 });
+            this.isSubmitting = false;
+            this.closeDialog();
+          },
+          error: (error) => {
+            console.error('Error updating student:', error);
+            this.snackBar.open('Erreur lors de la modification de l\'élève', 'Fermer', { duration: 5000 });
+            this.isSubmitting = false;
           }
-        } else {
-          // Add new student
-          const newStudent: Eleve = {
-            id: this.dataSource.data.length + 1,
-            ...formData,
-            date_naissance: formData.date_naissance.toISOString().split('T')[0],
-            statut: 'actif',
-            date_inscription: new Date().toISOString().split('T')[0],
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          };
-          this.dataSource.data = [newStudent, ...this.dataSource.data];
-          this.snackBar.open('Élève ajouté avec succès', 'Fermer', { duration: 3000 });
-        }
-
-        this.isSubmitting = false;
-        this.closeDialog();
-      }, 1000);
+        });
+      } else {
+        this.eleveService.createEleve(studentData).subscribe({
+          next: (newEleve) => {
+            this.dataSource.data = [newEleve, ...this.dataSource.data];
+            this.snackBar.open('Élève ajouté avec succès', 'Fermer', { duration: 3000 });
+            this.isSubmitting = false;
+            this.closeDialog();
+          },
+          error: (error) => {
+            console.error('Error creating student:', error);
+            this.snackBar.open('Erreur lors de l\'ajout de l\'élève', 'Fermer', { duration: 5000 });
+            this.isSubmitting = false;
+          }
+        });
+      }
     }
   }
 
   viewStudent(eleve: Eleve): void {
-    // Implement view details
     this.snackBar.open(`Voir les détails de ${eleve.nom} ${eleve.prenom}`, 'Fermer', { duration: 2000 });
   }
 
   toggleStatus(eleve: Eleve): void {
-    const newStatus = eleve.statut === 'actif' ? 'inactif' : 'actif';
-    const index = this.dataSource.data.findIndex(s => s.id === eleve.id);
+    const newStatus: 'actif' | 'inactif' = eleve.statut === 'actif' ? 'inactif' : 'actif';
+    const updateData: UpdateEleveRequest = { statut: newStatus };
 
-    if (index !== -1) {
-      this.dataSource.data[index].statut = newStatus;
-      this.dataSource._updateChangeSubscription();
-      this.snackBar.open(`Statut de ${eleve.nom} ${eleve.prenom} modifié`, 'Fermer', { duration: 3000 });
-    }
+    this.eleveService.updateEleve(eleve.id, updateData).subscribe({
+      next: (updatedEleve) => {
+        const index = this.dataSource.data.findIndex(s => s.id === eleve.id);
+        if (index !== -1) {
+          this.dataSource.data[index] = updatedEleve;
+          this.dataSource._updateChangeSubscription();
+        }
+        this.snackBar.open(`Statut de ${eleve.nom} ${eleve.prenom} modifié`, 'Fermer', { duration: 3000 });
+      },
+      error: (error) => {
+        console.error('Error updating status:', error);
+        this.snackBar.open('Erreur lors de la modification du statut', 'Fermer', { duration: 5000 });
+      }
+    });
   }
 
   deleteStudent(eleve: Eleve): void {
     if (confirm(`Êtes-vous sûr de vouloir supprimer ${eleve.nom} ${eleve.prenom} ?`)) {
-      const index = this.dataSource.data.findIndex(s => s.id === eleve.id);
-
-      if (index !== -1) {
-        this.dataSource.data.splice(index, 1);
-        this.dataSource._updateChangeSubscription();
-        this.snackBar.open('Élève supprimé avec succès', 'Fermer', { duration: 3000 });
-      }
+      this.eleveService.deleteEleve(eleve.id).subscribe({
+        next: () => {
+          const index = this.dataSource.data.findIndex(s => s.id === eleve.id);
+          if (index !== -1) {
+            this.dataSource.data.splice(index, 1);
+            this.dataSource._updateChangeSubscription();
+          }
+          this.snackBar.open('Élève supprimé avec succès', 'Fermer', { duration: 3000 });
+        },
+        error: (error) => {
+          console.error('Error deleting student:', error);
+          this.snackBar.open('Erreur lors de la suppression de l\'élève', 'Fermer', { duration: 5000 });
+        }
+      });
     }
   }
 }

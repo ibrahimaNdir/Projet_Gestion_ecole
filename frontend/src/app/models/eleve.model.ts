@@ -34,5 +34,5 @@ export interface CreateEleveRequest {
 }
 
 export interface UpdateEleveRequest extends Partial<CreateEleveRequest> {
-  id: number;
+  statut?: 'actif' | 'inactif';
 }

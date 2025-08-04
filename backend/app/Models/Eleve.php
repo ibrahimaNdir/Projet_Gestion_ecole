@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Eleve extends Model
@@ -11,13 +10,33 @@ class Eleve extends Model
     use HasFactory;
 
     protected $fillable = [
-        'utilisateur_id',
+        'matricule',
         'nom',
         'prenom',
         'date_naissance',
+        'lieu_naissance',
+        'sexe',
         'adresse',
-        'numero_matricule'
+        'telephone',
+        'email',
+        'photo',
+        'statut',
+        'date_inscription',
+        'utilisateur_id'
     ];
+
+    protected $casts = [
+        'date_naissance' => 'date',
+        'date_inscription' => 'date',
+    ];
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'id';
+    }
 
     public function user()
     {
@@ -35,6 +54,13 @@ class Eleve extends Model
     {
         return $this->hasMany(DocumentJustificatif::class);
     }
+
+    public function classes()
+    {
+        return $this->belongsToMany(Classe::class, 'eleveclasse', 'eleve_id', 'classe_id')
+            ->withTimestamps();
+    }
+
     protected static function boot()
     {
         parent::boot();
@@ -45,6 +71,7 @@ class Eleve extends Model
             }
         });
     }
+
     private static function generateMatricule()
     {
         // Exemple de matricule : "ELEVE" + année en 4 chiffres + un numéro aléatoire unique
