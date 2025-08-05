@@ -13,9 +13,9 @@ class MatiereController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function __construct()
+    public function __construct(MatiereService $matiereService)
     {
-        $this->matiereService = new MatiereService();
+        $this->matiereService = $matiereService;
     }
     public function index()
     {

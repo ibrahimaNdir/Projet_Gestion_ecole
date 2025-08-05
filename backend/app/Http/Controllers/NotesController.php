@@ -10,18 +10,13 @@ use Illuminate\Http\Request;
 
 class NotesController extends Controller
 {
-    /**
-     * @var NoteService
-     */
-    protected NoteService $noteService;
 
-    /**
-     * Constructeur pour injecter le service NoteService.
-     *
-     * @param NoteService $noteService
-     */
-    public function __construct(NoteService $noteService)
+    protected $noteService;
+
+
+    public function __construct( NotesService $noteService  )
     {
+
         $this->noteService = $noteService;
     }
 

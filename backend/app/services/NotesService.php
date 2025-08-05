@@ -19,11 +19,11 @@ class NotesService
      * Récupère toutes les notes.
      * Charge les relations avec l'élève, le cours et la période d'évaluation.
      *
-     * @return Collection<int, Note>
+     * @return \Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Builder[]
      */
-    public function index(): Collection
+    public function index(): array|\Illuminate\Database\Eloquent\Collection
     {
-        return Note::with(['eleve', 'cours.matiere', 'cours.enseignant', 'cours.classe', 'periodeEvaluation'])->get();
+        return Notes::with(['eleve', 'cours.matiere', 'cours.enseignant', 'cours.classe', 'periodeEvaluation'])->get();
     }
 
 
@@ -40,7 +40,7 @@ class NotesService
             // S'assurer que le cours de la note est bien lié à l'année active si non spécifié
             // Le cours lui-même devrait déjà être lié à une année académique.
             // La validation de StoreNoteRequest assure que cours_id et periode_evaluation_id existent.
-            return Note::create($data);
+            return Notes::create($data);
         } catch (\Throwable $e) {
             throw new Exception("Erreur lors de la création de la note : " . $e->getMessage());
         }
@@ -51,11 +51,11 @@ class NotesService
      * Charge les relations avec l'élève, le cours et la période d'évaluation.
      *
      * @param int $id L'ID de la note.
-     * @return Note|null
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder[]
      */
-    public function show(int $id): ?Note
+    public function show(int $id): \Illuminate\Database\Eloquent\Builder|array|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model
     {
-        return Note::with(['eleve', 'cours.matiere', 'cours.enseignant', 'cours.classe', 'periodeEvaluation'])->find($id);
+        return Notes::with(['eleve', 'cours.matiere', 'cours.enseignant', 'cours.classe', 'periodeEvaluation'])->find($id);
     }
 
     /**
@@ -69,7 +69,7 @@ class NotesService
     public function update(int $id, array $data): ?Note
     {
         try {
-            $note = Note::find($id);
+            $note = Notes::find($id);
 
             if ($note) {
                 $note->update($data);
@@ -90,7 +90,7 @@ class NotesService
      */
     public function destroy(int $id): bool
     {
-        return (bool) Note::destroy($id);
+        return (bool) Notes::destroy($id);
     }
 
     /**
@@ -104,7 +104,7 @@ class NotesService
     {
         $anneeAcademiqueId = $this->anneeAcademiqueService->getCurrentActiveAnneeId(); // Utilise l'année active
 
-        return Note::where('eleve_id', $eleveId)
+        return Notes::where('eleve_id', $eleveId)
             ->where('cours_id', $coursId)
             ->whereHas('cours', function ($query) use ($anneeAcademiqueId) {
                 $query->where('annee_academique_id', $anneeAcademiqueId);
@@ -124,7 +124,7 @@ class NotesService
     {
         $anneeAcademiqueId = $this->anneeAcademiqueService->getCurrentActiveAnneeId(); // Utilise l'année active
 
-        return Note::where('eleve_id', $eleveId)
+        return Notes::where('eleve_id', $eleveId)
             ->where('periode_evaluation_id', $periodeEvaluationId)
             ->whereHas('periodeEvaluation', function ($query) use ($anneeAcademiqueId) {
                 $query->where('annee_academique_id', $anneeAcademiqueId);
@@ -144,7 +144,7 @@ class NotesService
     {
         $anneeAcademiqueId = $this->anneeAcademiqueService->getCurrentActiveAnneeId(); // Utilise l'année active
 
-        return Note::where('cours_id', $coursId)
+        return Notes::where('cours_id', $coursId)
             ->where('periode_evaluation_id', $periodeEvaluationId)
             ->whereHas('cours', function ($query) use ($anneeAcademiqueId) {
                 $query->where('annee_academique_id', $anneeAcademiqueId);
@@ -168,7 +168,7 @@ class NotesService
     {
         $anneeAcademiqueId = $this->anneeAcademiqueService->getCurrentActiveAnneeId(); // Utilise l'année active
 
-        return Note::where('eleve_id', $eleveId)
+        return Notes::where('eleve_id', $eleveId)
             ->where('cours_id', $coursId)
             ->where('periode_evaluation_id', $periodeEvaluationId)
             ->whereHas('cours', function ($query) use ($anneeAcademiqueId) {
@@ -191,7 +191,7 @@ class NotesService
     {
         $anneeAcademiqueId = $this->anneeAcademiqueService->getCurrentActiveAnneeId(); // Utilise l'année active
 
-        return (float) Note::where('eleve_id', $eleveId)
+        return (float) Notes::where('eleve_id', $eleveId)
             ->where('cours_id', $coursId)
             ->whereHas('cours', function ($query) use ($anneeAcademiqueId) {
                 $query->where('annee_academique_id', $anneeAcademiqueId);
@@ -210,7 +210,7 @@ class NotesService
     {
         $anneeAcademiqueId = $this->anneeAcademiqueService->getCurrentActiveAnneeId(); // Utilise l'année active
 
-        return (float) Note::where('eleve_id', $eleveId)
+        return (float) Notes::where('eleve_id', $eleveId)
             ->where('periode_evaluation_id', $periodeEvaluationId)
             ->whereHas('periodeEvaluation', function ($query) use ($anneeAcademiqueId) {
                 $query->where('annee_academique_id', $anneeAcademiqueId);

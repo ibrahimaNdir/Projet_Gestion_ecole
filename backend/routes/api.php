@@ -30,19 +30,21 @@ use Illuminate\Support\Facades\Route;
 */
 
 // --- Routes publiques (pas d'authentification requise) ---
-Route::prefix('v1')->group(function () {
-    Route::post('register', [AuthController::class, 'register']);
-    Route::post('login', [AuthController::class, 'login']);
+Route::post('register', [AuthController::class, 'register']);
+Route::post('login', [AuthController::class, 'login']);
+Route::post('logout', [AuthController::class, 'logout']);
 
-    // Vous pouvez également ajouter ici d'autres routes publiques
-    Route::get('/nombre-eleves', [EleveController::class, 'compter']);
-});
+// Autres routes publiques sans le préfixe 'v1'
+Route::get('/nombre-eleves', [EleveController::class, 'compter']);
 
 // --- Routes protégées par l'authentification (Sanctum) ---
 Route::middleware('auth:sanctum')->group(function () {
 
     // --- Routes d'Administration (rôle 'admin' requis) ---
     Route::middleware('role:admin')->group(function () {
+
+        Route::apiResource('roles', \App\Http\Controllers\RoleController::class);
+
         // Routes de votre branche 'feature/academic-structure' pour l'administration
         Route::apiResource('anneesacademiques', AnneeAcademiqueController::class);
         // Route qui permet d'activer une anne
@@ -157,7 +159,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // --- Routes Enseignant (rôle 'enseignant' requis) ---
-    Route::middleware('role:enseignant')->group(function () {
+    Route::middleware('roles:enseignant')->group(function () {
         // L'enseignant peut gérer ses propres notes et consulter ses cours
         Route::post('notes', [NotesController::class, 'store']); // Saisie de notes
         Route::put('notes/{id}', [NotesController::class, 'update']); // Mise à jour de ses notes
@@ -197,7 +199,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // --- Routes Parent (rôle 'parent' requis) ---
-    Route::middleware('role:parent')->group(function () {
+    Route::middleware('roles:parent')->group(function () {
         // Le parent peut consulter les informations de ses enfants (élèves)
         // Les routes ci-dessous nécessitent une logique d'autorisation spécifique pour vérifier
         // que l'élève demandé est bien un enfant de l'utilisateur connecté.

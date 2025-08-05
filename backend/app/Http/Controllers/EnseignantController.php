@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\EnseignantRequest;
 use App\Models\Enseignant;
+use App\services\EnseignantService;
 use Illuminate\Http\Request;
 
 class EnseignantController extends Controller
@@ -29,7 +30,7 @@ class EnseignantController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(EnseignantRequest $request)
     {
         $enseignant=  $this->enseignantService->store($request->validated());
         return response()->json($enseignant,201);

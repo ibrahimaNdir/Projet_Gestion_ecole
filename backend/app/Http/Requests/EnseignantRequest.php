@@ -23,7 +23,6 @@ class EnseignantRequest extends FormRequest
     {
         return [
             'utilisateur_id' => [
-                'required',
                 'integer',
                 'exists:users,id', // S'assure que l'ID existe dans la table 'users'
                 // S'assure que l'utilisateur_id est unique dans la table 'enseignants'.
